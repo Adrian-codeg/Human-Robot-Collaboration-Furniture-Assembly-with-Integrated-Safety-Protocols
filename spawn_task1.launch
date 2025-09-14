@@ -1,0 +1,205 @@
+<?xml version="1.0"?>
+<launch>
+
+
+  <param name="red_box_path" type="str" value="$(find ur5_notebook)/urdf/red_box.urdf"/>
+
+ 
+  <arg name="limited" default="true"/>
+  <arg name="paused" default="false"/>
+  <!-- <arg name="gui" default="true"/> -->
+  <arg name="debug" default="false" />
+  <arg name="sim" default="true" />
+  <arg name="use_gui" default="true"/>
+
+  <!-- startup simulated world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" default="$(find ur5_notebook)/worlds/real_setup.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="gui" default="true"/>
+  </include>
+  <!-- Launch moveit -->
+  <!-- <include file="$(find ur5_camera_gripper_moveit_config)/launch/move_group.launch">
+    <arg name="limited" default="$(arg limited)"/>
+    <arg name="debug" default="$(arg debug)" />
+  </include> -->
+  
+
+  <!-- spawn the conveyor_belt in gazebo -->
+   <!-- <node name="spawn_human" pkg="gazebo_ros" type="spawn_model" args="-file $(find human_gazebo)/humanSubject01/humanSubject01_66dof.urdf -x 2 -y 2 -urdf -model human" />  -->
+  <!-- spawn the conveyor_belt in gazebo -->
+
+  <env name="GAZEBO_MODEL_PATH" value="${GAZEBO_MODEL_PATH}:$(find gazebo_sfm_plugin)/media/models"/>
+  <env name="GAZEBO_RESOURCE_PATH" value="${GAZEBO_RESOURCE_PATH}:$(find gazebo_sfm_plugin)/media/models"/>
+
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ur5_notebook)/urdf/ur5_single_arm.urdf.xacro'"/>  
+
+
+    
+
+  <!--<rosparam file="$(find ur5_notebook)/config/gazebo_ros_control_params.yaml" command="load" />-->
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model"
+      args="-urdf -param robot_description -model robot -J elbow_joint -0.8796 -J shoulder_lift_joint -1.131 -J shoulder_pan_joint 0.3142 -J wrist_1_joint -1.3195 -J wrist_2_joint 1.3763 -J wrist_3_joint 1.5708"
+      respawn="false" output="screen" />
+
+    <!-- <node pkg="tf" type="static_transform_publisher" name="robot_base_tf_pub" args="0.0 0.0 1.02 0 0 0 world base_link 100"/> -->
+   
+    <!-- <node pkg="tf" type="static_transform_publisher" name="world_to_base"
+      args="0 0 1.02 0 0 3.14 world base_link 100" /> -->
+
+
+  
+  <include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
+
+  <rosparam file="$(find ur_gazebo)/controller/arm_controller_ur5.yaml" command="load"/>
+  <!-- <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller" respawn="false" output="screen"/> -->
+
+  <param name="robot_description_planning/shape_transform_cache_lookup_wait_time" type="double" value="5.0"/>
+
+
+    <!-- <param name="planning_scene_monitor/monitor_octomap" value="false"/> -->
+
+
+    <param name="use_sim_time" value="true"/>
+
+     <!-- Load the controller parameters -->
+ 
+    <!-- <include file="$(find ur5_camera_gripper_moveit_config)/launch/ros_controllers.launch"/> -->
+    <!-- Load the controller parameters onto the parameter server -->
+  <rosparam file="$(find ur5_camera_gripper_moveit_config)/config/gazebo_controllers.yaml" />
+  <include file="$(find ur5_camera_gripper_moveit_config)/launch/ros_controllers.launch"/>
+    
+    
+    <include file="$(find ur5_camera_gripper_moveit_config)/launch/move_group.launch">
+      <arg name="limited" default="$(arg limited)"/>
+      <arg name="debug" default="$(arg debug)" />
+    </include>
+
+  <!-- Remap follow_joint_trajectory -->
+  <remap if="$(arg sim)" from="/follow_joint_trajectory" to="/arm_controller/follow_joint_trajectory"/>
+
+    <include file= "$(find ur5_camera_gripper_moveit_config)/launch/planning_context.launch" >
+        <arg name="load_robot_description" value="false" />
+    </include>
+
+    
+
+    <include file= "$(find ur5_camera_gripper_moveit_config)/launch/moveit_rviz.launch" >
+        <arg name="rviz_config" value="$(find ur5_camera_gripper_moveit_config)/launch/moveit.rviz" />
+    </include>
+
+
+    <!-- <param name="octomap_frame" value="world"/>
+    <param name="sensor_plugin" value="occupancy_map_monitor/PointCloudOctomapUpdater"/> -->
+
+
+
+    
+  <!-- <xacro:include filename="$(find human_gazebo)/humanSubject03/humanSubject03_66dof.urdf" /> -->
+    
+    <!-- <node name="link_attacher_node" pkg="gazebo_ros_link_attacher" type="link_attacher_node.py" output="screen" /> -->
+
+
+  <group ns="shapes">
+<!--     
+    <node name="spawn_human" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-file $(find human-gazebo)/humanSubjectWithMeshes/humanSubjectWithMesh.urdf -urdf -model human -x 1 -y -1.6 -z 0" /> -->
+
+    <!-- spawn cylinder -->
+    <node name="spawn_cylinder1" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model cylinder1 -x 0.3 -y 0.6 -z 0" />
+
+
+    <!-- spawn hole -->
+     <node name="hole2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/pegs_n_holes.urdf -urdf -model hole2 -x 0.5 -y -0.5 -z 0 -R 0.0 -P 0.0 -Y 0" />
+
+    <!--<node name="hole3" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/pegs_n_holes.urdf -urdf -model hole3 -x 0.6 -y -0.5 -z 0 -R 0.0 -P 0.0 -Y 0" /> -->
+
+
+    <!-- <node name="table_hole" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/table_hole.urdf -urdf -model table_hole -x 0.6 -y 0.0 -z 0 -R 0.0 -P 0.0 -Y 0" /> -->
+
+    <node name="lidar_base" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/lidar_base.urdf -urdf -model lidar_base -x -1.3 -y -1.2 -z 0" />
+
+
+
+<!-- 
+     <node name="spawn_blue_cylinder2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder2 -x 0.8 -y -0.2 -z 0" /> -->
+
+    <!--<node name="spawn_blue_cylinder3" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder3 -x -0.25 -y 0.3 -z 0" />
+
+    <node name="spawn_blue_cylinder4" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder4 -x 0.0 -y 0.9 -z 0" /> 
+
+
+
+    <node name="spawn_yellow_cylinder1" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_cylinder.urdf -urdf -model yellow_cylinder1 -x -0.1 -y 0 -z 0" />
+
+    <node name="spawn_yellow_cylinder2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_cylinder.urdf -urdf -model yellow_cylinder2 -x -0.4 -y -0.15 -z 0" />
+
+    <node name="spawn_yellow_cylinder3" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_cylinder.urdf -urdf -model yellow_cylinder3 -x -0.1 -y 0.6 -z 0" />
+
+    <node name="spawn_yellow_cylinder4" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_cylinder.urdf -urdf -model yellow_cylinder4 -x -0.35 -y 0.2 -z 0" /> 
+     -->
+
+
+<!--                 
+    <node name="yellow_plane" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_plane.urdf -urdf -model yellow_plane -x -0.25 -y 0.7 -z 0" />
+
+
+    <node name="blue_plane1" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_plane.urdf -urdf -model blue_plane1 -x 0.2 -y 0.15 -z 0" />
+
+    <node name="blue_plane2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_plane.urdf -urdf -model blue_plane2 -x 0.2 -y 0.7 -z 0" /> -->
+
+  </group>
+
+
+  <node name="spawn_bin1" pkg="gazebo_ros" type="spawn_model" output="screen"
+      args="-file $(find ur5_notebook)/urdf/bin.urdf -urdf -model bin1 -x -0.6 -y 0.5 -z 0.76"/>
+
+  <node name="spawn_bin2" pkg="gazebo_ros" type="spawn_model" output="screen"
+      args="-file $(find ur5_notebook)/urdf/bin.urdf -urdf -model bin2 -x -0.6 -y 0.0 -z 0.76"/>
+
+  <node name="spawn_bin3" pkg="gazebo_ros" type="spawn_model" output="screen"
+      args="-file $(find ur5_notebook)/urdf/bin.urdf -urdf -model bin3 -x -0.6 -y -0.5 -z 0.76"/>
+
+  <node name="bin_base" pkg="gazebo_ros" type="spawn_model" output="screen"
+      args="-file $(find ur5_notebook)/urdf/bin_base.urdf -urdf -model bin_base -x -0.6 -y 0.0 -z 0"/>
+
+    
+    
+  
+
+
+
+   
+</launch>
