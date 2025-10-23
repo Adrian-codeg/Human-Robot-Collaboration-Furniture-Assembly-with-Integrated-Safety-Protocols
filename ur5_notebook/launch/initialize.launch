@@ -1,0 +1,173 @@
+<?xml version="1.0"?>
+<launch>
+
+
+  <param name="red_box_path" type="str" value="$(find ur5_notebook)/urdf/red_box.urdf"/>
+
+  <arg name="gui" default="true"/>
+  <arg name="rvizconfig" default="$(find ur5_notebook)/launch/ur5_single_arm_rviz.rviz" />
+
+  <arg name="limited" default="true"/>
+  <arg name="paused" default="false"/>
+  <!-- <arg name="gui" default="true"/> -->
+  <arg name="debug" default="false" />
+  <arg name="sim" default="true" />
+
+  <!-- startup simulated world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" default="$(find ur5_notebook)/worlds/real_setup.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+  <!-- Launch moveit -->
+  <include file="$(find ur5_moveit_config)/launch/move_group.launch">
+    <arg name="limited" default="$(arg limited)"/>
+    <arg name="debug" default="$(arg debug)" />
+  </include>
+  <!-- spwan ur5 -->
+  <!-- send robot urdf to param server -->
+  <!-- <include file="$(find ur_description)/launch/ur5_upload.launch">
+    <arg name="limited" value="$(arg limited)"/>
+  </include> -->
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find ur5_notebook)/urdf/ur5_single_arm.urdf.xacro'"/>  
+
+
+  <!--<rosparam file="$(find ur5_notebook)/config/gazebo_ros_control_params.yaml" command="load" />-->
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node name="spawn_gazebo_model" pkg="gazebo_ros" type="spawn_model" 
+    args="-urdf -param robot_description -model robot -z 1.02 -x 0.6 -y 0.4
+            -J shoulder_lift_joint -2.0
+            -J elbow_joint 1.0"
+            respawn="false" output="screen" />
+
+  <include file="$(find ur_gazebo)/launch/controller_utils.launch"/>
+
+  <rosparam file="$(find ur_gazebo)/controller/arm_controller_ur5.yaml" command="load"/>
+  <node name="arm_controller_spawner" pkg="controller_manager" type="controller_manager" args="spawn arm_controller" respawn="false" output="screen"/>
+
+  <!-- Remap follow_joint_trajectory -->
+  <remap if="$(arg sim)" from="/follow_joint_trajectory" to="/arm_controller/follow_joint_trajectory"/>
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+
+
+  <!-- spawn the conveyor_belt in gazebo -->
+  <!-- <node name="spawn_conveyor_belt" pkg="gazebo_ros" type="spawn_model" args="-file $(find ur5_notebook)/urdf/conveyor_belt.urdf -urdf -model conveyor_belt" /> -->
+  <!-- spawn the conveyor_belt in gazebo -->
+  <!-- <node name="bin" pkg="gazebo_ros" type="spawn_model" args="-file $(find ur5_notebook)/urdf/bin.urdf -urdf -model bin -y 0.8 -x -0.5 -z 0.05" /> -->
+  <!-- the red blocks spawner node -->
+  <!-- <node name="blocks_spawner" pkg="ur5_notebook" type="blocks_spawner" output="screen" /> -->
+
+  <!-- the cylinder poses publisher node -->
+  <!-- <node name="blocks_poses_publisher" pkg="ur5_notebook" type="blocks_poses_publisher" output="screen" /> -->
+
+<!-- 
+  <node name="spawn_table1" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-file $(env HOME)/gazebo_models/gazebo_modelss/Table/model.sdf
+              -sdf
+              -model Table1
+              -x 0 -y 0 -z 0.0" />
+
+  <node name="spawn_table2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        args="-file $(env HOME)/gazebo_models/gazebo_modelss/Table/model.sdf
+              -sdf
+              -model Table2
+              -x 0 -y 0.802 -z 0.0" />   
+
+  <include file="$(find ur5_notebook)/launch/spawn_shapes.launch"/> -->
+
+
+
+  <group ns="shapes">
+    <!-- <node name="spawn_red_box1" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/red_box.urdf -urdf -model red_box1 -x 0.2 -y 0.5 -z 0" />
+
+    <node name="spawn_red_box2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/red_box.urdf -urdf -model red_box2 -x -0.1 -y 0.8 -z 0" />
+
+    <node name="spawn_red_box3" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/red_box.urdf -urdf -model red_box3 -x -0.6 -y 0.3 -z 0" />
+
+    <node name="spawn_red_box4" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/red_box.urdf -urdf -model red_box4 -x -0.2 -y 0.2 -z 0" /> -->
+
+    <node name="spawn_blue_cylinder1" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder1 -x 0.1 -y -0.2 -z 0" />
+
+    <node name="spawn_blue_cylinder2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder2 -x 0.1 -y 0.2 -z 0" />
+
+    <node name="spawn_blue_cylinder3" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder3 -x -0.15 -y 0.3 -z 0" />
+
+    <node name="spawn_blue_cylinder4" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder4 -x 0.1 -y 0.9 -z 0" /> 
+
+
+
+    <node name="spawn_yellow_cylinder1" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_cylinder.urdf -urdf -model yellow_cylinder1 -x 0 -y 0 -z 0" />
+
+    <node name="spawn_yellow_cylinder2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_cylinder.urdf -urdf -model yellow_cylinder2 -x -0.3 -y -0.15 -z 0" />
+
+    <node name="spawn_yellow_cylinder3" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_cylinder.urdf -urdf -model yellow_cylinder3 -x 0 -y 0.6 -z 0" />
+
+    <node name="spawn_yellow_cylinder4" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_cylinder.urdf -urdf -model yellow_cylinder4 -x -0.25 -y 0.2 -z 0" /> 
+    
+
+
+                
+    <node name="yellow_plane" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_plane.urdf -urdf -model yellow_plane -x -0.15 -y 0.7 -z 0" />
+
+
+    <node name="blue_plane1" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_plane.urdf -urdf -model blue_plane1 -x 0.3 -y 0.15 -z 0" />
+
+    <node name="blue_plane2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/blue_plane.urdf -urdf -model blue_plane2 -x 0.3 -y 0.7 -z 0" />
+
+
+    <!-- <node name="spawn_yellow_cuboid2" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_plane.urdf -urdf -model yellow_cuboid2 -x 0.1 -y 0.3 -z 0" />
+
+    <node name="spawn_yellow_cuboid3" pkg="gazebo_ros" type="spawn_model" output="screen"
+        
+        args="-file $(find ur5_notebook)/urdf/yellow_plane.urdf -urdf -model yellow_cuboid3 -x -0.1 -y -0.2 -z 0" /> -->
+  
+  </group>
+  
+
+
+  <!-- the cylinder poses publisher node -->
+  <!--<node name="ur5_vision" pkg="ur5_notebook" type="ur5_vision.py" output="screen" />
+  <node name="ur5_mp" pkg="ur5_notebook" type="ur5_mp.py" output="screen" />
+  <node name="ur5_gripper" pkg="ur5_notebook" type="ur5_gripper.py" output="screen"/>-->
+  <!-- for ros control to be used with scara robot -->
+<!--   <param name="/scara_robot_left/robot_description" textfile="$(find two_scara_collaboration)/urdf/scara_robot_left.urdf" /> -->
+
+<!-- spawn the red_box in gazebo -->
+<!-- node name="spawn_red_box" pkg="gazebo_ros" type="spawn_model" args="-file $(find ur5_notebook)/urdf/red_box.urdf -urdf -model red_box"/ -->
+
+
+</launch>

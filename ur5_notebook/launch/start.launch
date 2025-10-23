@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+
+
+
+
+  <arg name="gui" default="true"/>
+
+
+  <arg name="limited" default="true"/>
+  <arg name="paused" default="false"/>
+  <!-- <arg name="gui" default="true"/> -->
+  <arg name="debug" default="false" />
+  <arg name="sim" default="true" />
+
+  <!-- startup simulated world -->
+  <include file="$(find gazebo_ros)/launch/empty_world.launch">
+    <arg name="world_name" default="$(find ur5_notebook)/worlds/real_setup.world"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="gui" value="$(arg gui)"/>
+  </include>
+
+</launch>

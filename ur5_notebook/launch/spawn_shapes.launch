@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="delay_time" default="20"/>
+
+  <!-- Delay before spawning shapes -->
+  <node pkg="roscpp_tutorials" type="talker" name="delay_node" output="screen"
+        launch-prefix="bash -c 'sleep $(arg delay_time); exec '" />
+
+
+
+  <group ns="shapes">
+    <node name="spawn_red_box1" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/red_box.urdf -urdf -model red_box1 -x 0.2 -y 0.5 -z 1" />
+    <node name="spawn_red_box2" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/red_box.urdf -urdf -model red_box2 -x -0.1 -y 0.8 -z 1" />
+    <node name="spawn_red_box3" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/red_box.urdf -urdf -model red_box3 -x -0.6 -y 0.3 -z 1" />
+    <node name="spawn_red_box4" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/red_box.urdf -urdf -model red_box4 -x -0.2 -y 0.2 -z 1" />
+    <node name="spawn_blue_cylinder1" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder1 -x -0.1 -y 0.6 -z 1" />
+    <node name="spawn_blue_cylinder2" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder2 -x 0.2 -y 0.1 -z 1" />
+    <node name="spawn_blue_cylinder3" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/blue_cylinder.urdf -urdf -model blue_cylinder3 -x -0.4 -y -0.2 -z 1" />
+    <node name="spawn_yellow_cuboid1" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/yellow_cuboid.urdf -urdf -model yellow_cuboid1 -x -0.4 -y 0.5 -z 1" />
+    <node name="spawn_yellow_cuboid2" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/yellow_cuboid.urdf -urdf -model yellow_cuboid2 -x 0.1 -y 0.3 -z 1" />
+    <node name="spawn_yellow_cuboid3" pkg="gazebo_ros" type="spawn_model" output="screen"
+          args="-file $(find ur5_notebook)/urdf/yellow_cuboid.urdf -urdf -model yellow_cuboid3 -x -0.1 -y -0.2 -z 1" />
+  </group>
+</launch>

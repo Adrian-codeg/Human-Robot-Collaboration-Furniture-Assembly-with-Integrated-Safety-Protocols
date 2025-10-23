@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<robot name="blue_cylinder">
+
+<link name="base_link">
+  <collision>
+    <origin xyz="0 0 1.2" rpy="0 0 0"/>
+    <geometry>
+      <cylinder length="0.2" radius="0.018"/>
+    </geometry>
+  </collision>
+
+  <visual>
+    <origin xyz="0 0 1.2" rpy="0 0 0"/>
+    <geometry>
+      <cylinder length="0.2" radius="0.018"/>
+    </geometry>
+  </visual>
+
+  <inertial>
+    <origin xyz="0 0 1.2" rpy="0 0 0"/>
+    <mass value="0.01"/>
+    <inertia
+      ixx="1e-5" ixy="0.0" ixz="0.0"
+      iyy="1e-5" iyz="0.0"
+      izz="1e-5"/>
+  </inertial>
+</link>
+
+<gazebo reference="base_link">
+  <static>true</static>
+  <material>Gazebo/White</material>
+  <mu1>5</mu1>
+  <mu2>5</mu2>
+
+  <kp>500000.0</kp>
+  <kd>500.0</kd>
+
+</gazebo>
+
+
+
+</robot>
+
